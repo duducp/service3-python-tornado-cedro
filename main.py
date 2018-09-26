@@ -7,11 +7,22 @@ from random import randrange
 
 
 def connect():
+    global connection
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 
     global channel
     channel = connection.channel()
     print(' [*] Serviço estabaleceu conexão com RabbitMQ')
+
+
+def send(obj):
+    # Cria a fila
+    channel.queue_declare(queue='response')
+
+    message_rabbit_mq = json.dumps(obj)
+
+    # envia a mensagem para a fila
+    channel.basic_publish(exchange='', routing_key='response', body=message_rabbit_mq)
 
 
 def receiver():
@@ -33,7 +44,15 @@ def callback_receiver(ch, method, properties, body):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
     data = json.loads(body)
-    endpoint(data.get('name'))
+    response = endpoint(data.get('name'))
+
+    obj = {
+        'name': data.get('name'),
+        'id': data.get('id'),
+        'response': response.text
+    }
+
+    send(obj)
 
 
 def endpoint(name):
@@ -46,10 +65,8 @@ def endpoint(name):
         'dadosConsulta.valorConsulta': name
     }
 
-    response = requests.get(url=_URL, params=_PARAMS)
-    print(response.status_code)
-    print(len(response.content))
-    print(response.content[:100])
+    req = requests.get(url=_URL, params=_PARAMS)
+    return req
 
 
 if __name__ == '__main__':
@@ -57,4 +74,4 @@ if __name__ == '__main__':
         connect()
         receiver()
     except KeyboardInterrupt:
-        print('tef')
+        connection.close()
