@@ -16,23 +16,24 @@ def connect():
 
 
 def send(obj):
-    # Cria a fila
+    # define o nome da fila
     channel.queue_declare(queue='response')
 
+    # converte o objeto para o tipo json (decodifica)
     message_rabbit_mq = json.dumps(obj)
 
-    # envia a mensagem para a fila
+    # envia o objeto para a fila
     channel.basic_publish(exchange='', routing_key='response', body=message_rabbit_mq)
 
 
 def receiver():
-    # nome da fila
+    # define o nome da fila
     channel.queue_declare(queue='request-tj-sp')
 
     # número de mensagens a ser envia por vez
     channel.basic_qos(prefetch_count=1)
 
-    # Consumindo a fila
+    # consome a fila (recebe os dados da fila)
     channel.basic_consume(callback_receiver, queue='request-tj-sp')
 
     print(' [*] Serviço inicializado. Para parar precione CTRL+C')
@@ -59,7 +60,7 @@ def endpoint(name):
     _URL = "http://esaj.tjsp.jus.br/cpopg/search.do"
     _PARAMS = {
         'conversationId': '',
-        'dadosConsulta.localPesquisa.cdLocal': -1,
+        'dadosConsulta.localPesquisa.cdLocal': '-1',
         'cbPesquisa': 'NMPARTE',
         'dadosConsulta.tipoNuProcesso': 'UNIFICADO',
         'dadosConsulta.valorConsulta': name
