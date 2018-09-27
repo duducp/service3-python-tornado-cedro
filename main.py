@@ -57,17 +57,24 @@ def callback_receiver(ch, method, properties, body):
 
 
 def endpoint(name):
-    _URL = "http://esaj.tjsp.jus.br/cpopg/search.do"
-    _PARAMS = {
-        'conversationId': '',
-        'dadosConsulta.localPesquisa.cdLocal': '-1',
-        'cbPesquisa': 'NMPARTE',
-        'dadosConsulta.tipoNuProcesso': 'UNIFICADO',
-        'dadosConsulta.valorConsulta': name
-    }
+    try:
+        _URL = "http://esaj.tjsp.jus.br/cpopg/search.do"
+        _PARAMS = {
+            'conversationId': '',
+            'dadosConsulta.localPesquisa.cdLocal': '-1',
+            'cbPesquisa': 'NMPARTE',
+            'dadosConsulta.tipoNuProcesso': 'UNIFICADO',
+            'dadosConsulta.valorConsulta': name
+        }
 
-    req = requests.get(url=_URL, params=_PARAMS)
-    return req
+        req = requests.get(url=_URL, params=_PARAMS)
+        return req
+    except requests.exceptions.Timeout:
+        return 'O site TJSP não está respondendo'
+    except requests.exceptions.TooManyRedirects:
+        return 'A URL informada parece não estar correta'
+    except requests.exceptions.RequestException as e:
+        return 'Ocorreu um erro ao buscar as informações no site TJSP'
 
 
 if __name__ == '__main__':
