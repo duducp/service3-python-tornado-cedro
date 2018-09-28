@@ -57,8 +57,12 @@ def callback_receiver(ch, method, properties, body):
     soup = BeautifulSoup(response.text, 'html.parser')
     processes = soup.find_all("a", class_="linkProcesso")
 
-    process_number = processes[0].get_text().strip()
-    process_link = processes[0].get('href').strip()
+    if not processes:
+        process_number = 'Nada Encontrado'
+        process_link = 'Nada Encontrado'
+    else:
+        process_number = processes[0].get_text().strip()
+        process_link = processes[0].get('href').strip()
 
     response = json.dumps({'numero_processo': process_number, 'link': process_link, 'dominio': _DOMAIN})
 
