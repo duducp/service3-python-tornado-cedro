@@ -27,7 +27,7 @@ Obs.: Você deve estar no diretório do projeto.
 2º Instalar o [Rabbitmq Server](https://www.rabbitmq.com/download.html):
 
 - Iniciar o cmd do rabbitmq e digitar o comando: rabbitmq-plugins enable rabbitmq_management
-- Rodar o executavel que inicia o servi�os
+- Rodar o executavel que inicia o serviços
 
 ```
 Url do painel: http://localhost:15672
