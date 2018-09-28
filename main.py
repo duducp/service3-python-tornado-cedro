@@ -1,4 +1,8 @@
+import re
+
 import requests
+
+from bs4 import BeautifulSoup
 
 import json
 import pika
@@ -49,10 +53,19 @@ def callback_receiver(ch, method, properties, body):
     data = json.loads(body)
     response = endpoint(data.get('name'))
 
+    # Extrai os dados do content
+    soup = BeautifulSoup(response.text, 'html.parser')
+    processes = soup.find_all("a", class_="linkProcesso")
+
+    process_number = processes[0].get_text().strip()
+    process_link = processes[0].get('href').strip()
+
+    response = json.dumps({'numero_processo': process_number, 'link': process_link, 'dominio': _DOMAIN})
+
     obj = {
         'name': data.get('name'),
         'id': data.get('id'),
-        'response': response.text
+        'response': response
     }
 
     send(obj)
@@ -60,7 +73,9 @@ def callback_receiver(ch, method, properties, body):
 
 def endpoint(name):
     try:
-        _URL = "http://esaj.tjsp.jus.br/cpopg/search.do"
+        global _DOMAIN
+        _DOMAIN = "http://esaj.tjsp.jus.br"
+        _URL = _DOMAIN + "/cpopg/search.do"
         _PARAMS = {
             'conversationId': '',
             'dadosConsulta.localPesquisa.cdLocal': '-1',
