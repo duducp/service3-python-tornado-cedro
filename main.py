@@ -17,24 +17,26 @@ def connect():
 
 def send(obj):
     # define o nome da fila
-    channel.queue_declare(queue='response')
+    _queue = 'response'
+    channel.queue_declare(queue=_queue)
 
     # converte o objeto para o tipo json (decodifica)
     message_rabbit_mq = json.dumps(obj)
 
     # envia o objeto para a fila
-    channel.basic_publish(exchange='', routing_key='response', body=message_rabbit_mq)
+    channel.basic_publish(exchange='', routing_key=_queue, body=message_rabbit_mq)
 
 
 def receiver():
     # define o nome da fila
-    channel.queue_declare(queue='request-tj-sp')
+    _queue = 'request-tj-sp'
+    channel.queue_declare(queue=_queue)
 
     # número de mensagens a ser envia por vez
     channel.basic_qos(prefetch_count=1)
 
     # consome a fila (recebe os dados da fila)
-    channel.basic_consume(callback_receiver, queue='request-tj-sp')
+    channel.basic_consume(callback_receiver, queue=_queue)
 
     print(' [*] Serviço inicializado. Para parar precione CTRL+C')
     channel.start_consuming()
